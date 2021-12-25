@@ -12,6 +12,7 @@ public class Path {
     [SerializeField, HideInInspector]
     bool autoSetControlPoints;
 
+
     public Path(Vector2 centre)
     {
         points = new List<Vector2>
@@ -23,6 +24,17 @@ public class Path {
         };
     }
 
+    public Path(Vector2 startPoint, Vector2 endPoint)
+    {
+        points = new List<Vector2>
+        {
+            startPoint,
+            endPoint + (Vector2.left + Vector2.up) * .5f,
+            startPoint + (Vector2.right + Vector2.down) * .5f,
+            endPoint
+        };
+    }
+
     public Vector2 this[int i]
     {
         get
@@ -30,6 +42,8 @@ public class Path {
             return points[i];
         }
     }
+
+
 
     public bool IsClosed
     {
@@ -208,10 +222,10 @@ public class Path {
         return -1;
     }
 
-    public Vector2[] CalculateEvenlySpacedPoints(float spacing, float resolution = 1)
+    public Vector2[] CalculateEvenlySpacedPoints(float spacing, Vector2 position, float resolution = 1)
     {
         List<Vector2> evenlySpacedPoints = new List<Vector2>();
-        evenlySpacedPoints.Add(points[0]);
+        evenlySpacedPoints.Add(points[0] - position);
         Vector2 previousPoint = points[0];
         float dstSinceLastEvenPoint = 0;
 
@@ -231,7 +245,7 @@ public class Path {
                 while (dstSinceLastEvenPoint >= spacing)
                 {
                     float overshootDst = dstSinceLastEvenPoint - spacing;
-                    Vector2 newEvenlySpacedPoint = pointOnCurve + (previousPoint - pointOnCurve).normalized * overshootDst;
+                    Vector2 newEvenlySpacedPoint = pointOnCurve + (previousPoint - pointOnCurve).normalized * overshootDst - position;
                     evenlySpacedPoints.Add(newEvenlySpacedPoint);
                     dstSinceLastEvenPoint = overshootDst;
                     previousPoint = newEvenlySpacedPoint;
@@ -243,7 +257,7 @@ public class Path {
 
         return evenlySpacedPoints.ToArray();
     }
-
+    
 
     void AutoSetAllAffectedControlPoints(int updatedAnchorIndex)
     {

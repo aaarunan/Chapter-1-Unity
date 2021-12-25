@@ -7,45 +7,57 @@ using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
+[RequireComponent((typeof(BoxCollider2D)))]
 public class RoadEditor : MonoBehaviour
 {
 
     public GameObject anchorPoint;
-    private Path path;
+    public Path path;
  
     [Range(.05f, 1.5f)]
-    public float spacing = 1;
+    public float spacing = 0.1f;
     public float roadWidth = 1;
-    public float tiling = 1;
+    public float tiling = 0.1f;
 
+    public RoadEditor()
+    {
+        path = new Path(transform.position);
+    }
+
+    public RoadEditor(Vector2 startPoint, Vector2 endPoint)
+    {
+        path = new Path(startPoint, endPoint);
+    }
+
+    public RoadEditor(Vector2 startPoint)
+    {
+        path = new Path(startPoint, startPoint + Vector2.up);
+    }
     public void Start()
     {
-         //anchorPoint =  (GameObject)Resources.Load("AnchorPoint", typeof(GameObject));
-    
+         anchorPoint =  Resources.Load<GameObject>("Prefabs/AnchorPoint");
          path = new Path(transform.position);
+         
          Draw();
          UpdateRoad();
+
+
     }
 
     private void OnEnable()
     {
+        GetComponent<MeshRenderer>().materials[0] = Resources.Load<Material>("Materials/Road");
         Actions.OnUpdatePath += Draw;
-        Actions.OnAddPath += AddSegment;
-        Actions.OnEditMode += EditMode;
-        Actions.OnClosePath += ClosePath;
     }
     
     private void OnDisable()
     {
         Actions.OnUpdatePath -= Draw;
-        Actions.OnAddPath -= AddSegment;
-        Actions.OnEditMode -= EditMode;
-        Actions.OnClosePath -= ClosePath;
     }
     
     public void UpdateRoad()
     {
-        Vector2[] points = path.CalculateEvenlySpacedPoints(spacing);
+        Vector2[] points = path.CalculateEvenlySpacedPoints(spacing, transform.position);
         GetComponent<MeshFilter>().mesh = CreateRoadMesh(points, path.IsClosed);
 
         int textureRepeat = Mathf.RoundToInt(tiling * points.Length * spacing * .05f);
@@ -80,19 +92,19 @@ public class RoadEditor : MonoBehaviour
         }
     }
 
-    private void AddSegment(Vector2 anchorPos)
+    public void AddSegment(Vector2 anchorPos)
     {   
         path.AddSegment(anchorPos);
         Draw();
     }
 
-    private void ClosePath(bool closePath)
+    public void ClosePath(bool closePath)
     {
         path.IsClosed = closePath;
         Draw();
     }
 
-    private void EditMode(bool editMode)
+    public void EditMode(bool editMode)
     {
         if (editMode)
         {
@@ -103,6 +115,22 @@ public class RoadEditor : MonoBehaviour
             Remove();
         }
     }
+
+    public void SplitPath()
+    {
+        GameObject split0 = new GameObject("Road");
+        GameObject split1 = new GameObject("Road");
+
+        split0.AddComponent<RoadEditor>().path = new Path(path[path.NumPoints-1], path[path.NumPoints-1] + Vector2.up * 0.5f);
+        split1.AddComponent<RoadEditor>().path = new Path(path[path.NumPoints-1], path[path.NumPoints-1] + Vector2.down * 0.5f);
+        split0.
+        
+        Draw();
+
+    }
+    
+
+    
     
     Mesh CreateRoadMesh(Vector2[] points, bool isClosed)
     {
@@ -155,6 +183,7 @@ public class RoadEditor : MonoBehaviour
         mesh.vertices = verts;
         mesh.triangles = tris;
         mesh.uv = uvs;
+        
 
         return mesh;
     }

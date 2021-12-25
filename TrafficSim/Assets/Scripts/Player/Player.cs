@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DefaultNamespace;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -13,7 +14,7 @@ public class Player : MonoBehaviour
     public float maxOrthograpicSize = 60f;
 
     public GameObject anchorPoint;
-    private GameObject _chosenRoad;
+    private RoadEditor _chosenRoad;
 
     private static bool editMode;
     private static bool closePath;
@@ -22,12 +23,21 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        //Is using get component to expensive??
+        
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             
             editMode = !editMode;
-            print("Editmode: " + editMode);
+            
             Actions.OnEditMode(editMode);
+            if (_chosenRoad != null)
+            {
+                _chosenRoad.EditMode(editMode);
+            }
+            
+            print("Editmode: " + editMode);
+
         }
 
         Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -41,8 +51,8 @@ public class Player : MonoBehaviour
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    _chosenRoad = hit.collider.gameObject;
-                
+                    _chosenRoad = hit.collider.gameObject.GetComponent<RoadEditor>();
+                    _chosenRoad.EditMode(editMode);
                     Debug.Log("Target Position: " + hit.collider.gameObject.GetComponent<PathCreator>());
                 }
 
@@ -59,22 +69,27 @@ public class Player : MonoBehaviour
             {
                 GameObject point = Instantiate(anchorPoint, _chosenRoad.transform);
                 point.transform.position = mousePosition;
-                point.transform.position = mousePosition;
-    
-                Actions.OnAddPath(point.transform.position);
+
+                _chosenRoad.AddSegment(mousePosition);
             }
 
             if (Input.GetKeyDown(KeyCode.Mouse1) && Input.GetKey(KeyCode.LeftShift))
             {
                 GameObject road = new GameObject("Road");
                 road.AddComponent<RoadEditor>();
-                _chosenRoad = road;
+                road.transform.position = mousePosition;
+                _chosenRoad = road.GetComponent<RoadEditor>();
             }
 
             if (Input.GetKeyDown(KeyCode.E))
             {
                 closePath = !closePath;
-                Actions.OnClosePath(closePath);
+                _chosenRoad.ClosePath(closePath);
+            }
+            
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                _chosenRoad.SplitPath();
             }
         }
         

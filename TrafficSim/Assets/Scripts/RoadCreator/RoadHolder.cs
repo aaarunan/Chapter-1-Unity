@@ -8,7 +8,6 @@ public class RoadHolder : MonoBehaviour
 {
     private PathHolder pathHolder;
 
-
     void Start()
     {
         pathHolder = new PathHolder();
@@ -19,15 +18,18 @@ public class RoadHolder : MonoBehaviour
         Actions.OnAddBaicRoad += GenerateBasicRoad;
     }
 
+    private void OnDisable()
+    {
+        Actions.OnAddBaicRoad -= GenerateBasicRoad;
+    }
+
 
     public void GenerateBasicRoad(Vector2 mousePos)
     {
         GameObject road = new GameObject("Road");
-        
-        road.transform.parent = this.gameObject.transform; 
-        road.transform.position = mousePos;
         road.AddComponent<RoadEditor>();
-        
+        road.transform.position = mousePos;
+        road.transform.parent = gameObject.transform;
         pathHolder.AddPath(road.GetComponent<RoadEditor>().path);
 
     }

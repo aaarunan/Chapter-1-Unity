@@ -17,13 +17,16 @@ public class Player : MonoBehaviour
     
     private RoadEditor _chosenRoad;
 
+    private RoadHolder _roadHolder;
+
     private static bool editMode;
     private static bool closePath;
 
 
-    private void OnEnable()
+    private void Start()
     {
-        Actions.OnAddBaicRoad(Vector2.zero);
+        _roadHolder = GameObject.Find("RoadHolder").GetComponent<RoadHolder>();
+        _roadHolder.GenerateBasicRoad(Vector2.zero);
     }
 
     void Update()
@@ -53,7 +56,7 @@ public class Player : MonoBehaviour
         if (editMode)
         {
             /*
-             * Choosing or chaning chosenpath
+             * Choosing or changing chosenpath
              */
             if (hit.collider != null)
             {
@@ -89,7 +92,7 @@ public class Player : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Mouse1) && Input.GetKey(KeyCode.LeftShift))
             {
-                Actions.OnAddBaicRoad(mousePosition);
+                _roadHolder.GenerateBasicRoad(mousePosition);
             }
             
             /*

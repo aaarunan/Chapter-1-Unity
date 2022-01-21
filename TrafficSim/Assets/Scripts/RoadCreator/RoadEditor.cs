@@ -21,7 +21,7 @@ public class RoadEditor : MonoBehaviour
 
     public RoadEditor()
     {
-        path = new Path(transform.position);
+        
     }
 
     public RoadEditor(Vector2 startPoint, Vector2 endPoint)
@@ -53,6 +53,12 @@ public class RoadEditor : MonoBehaviour
     private void OnDisable()
     {
         Actions.OnUpdatePath -= Draw;
+    }
+
+    public void ChangePath(Path change)
+    {
+        path = change;
+        Draw();
     }
     
     public void UpdateRoad()
@@ -118,13 +124,8 @@ public class RoadEditor : MonoBehaviour
 
     public void SplitPath()
     {
-        GameObject split0 = new GameObject("Road");
-        GameObject split1 = new GameObject("Road");
+        transform.parent.GetComponent<RoadHolder>().SplitRoad(path);
 
-        split0.AddComponent<RoadEditor>().path = new Path(path[path.NumPoints-1], path[path.NumPoints-1] + Vector2.up * 0.5f);
-        split1.AddComponent<RoadEditor>().path = new Path(path[path.NumPoints-1], path[path.NumPoints-1] + Vector2.down * 0.5f);
-        split0.
-        
         Draw();
 
     }

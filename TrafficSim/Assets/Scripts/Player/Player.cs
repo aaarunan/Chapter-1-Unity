@@ -14,12 +14,17 @@ public class Player : MonoBehaviour
     public float maxOrthograpicSize = 60f;
 
     public GameObject anchorPoint;
+    
     private RoadEditor _chosenRoad;
 
     private static bool editMode;
     private static bool closePath;
-    
 
+
+    private void OnEnable()
+    {
+        Actions.OnAddBaicRoad(Vector2.zero);
+    }
 
     void Update()
     {
@@ -47,6 +52,9 @@ public class Player : MonoBehaviour
         
         if (editMode)
         {
+            /*
+             * Choosing or chaning chosenpath
+             */
             if (hit.collider != null)
             {
                 if (Input.GetMouseButtonDown(0))
@@ -63,8 +71,10 @@ public class Player : MonoBehaviour
                 Debug.DrawLine(transform.position, mousePosition, Color.green);
             }
             
-            //TODO: put into a another class like "RoadHolder"
-            
+            /*
+             * Adding anchorPoint
+             */
+
             if (Input.GetKeyDown(KeyCode.Mouse0) && Input.GetKey(KeyCode.LeftShift) )
             {
                 GameObject point = Instantiate(anchorPoint, _chosenRoad.transform);
@@ -72,20 +82,29 @@ public class Player : MonoBehaviour
 
                 _chosenRoad.AddSegment(mousePosition);
             }
+            
+            /*
+             * Adding new road
+             */
 
             if (Input.GetKeyDown(KeyCode.Mouse1) && Input.GetKey(KeyCode.LeftShift))
             {
-                GameObject road = new GameObject("Road");
-                road.AddComponent<RoadEditor>();
-                road.transform.position = mousePosition;
-                _chosenRoad = road.GetComponent<RoadEditor>();
+                Actions.OnAddBaicRoad(mousePosition);
             }
+            
+            /*
+             * Close the selected path
+             */
 
             if (Input.GetKeyDown(KeyCode.E))
             {
                 closePath = !closePath;
                 _chosenRoad.ClosePath(closePath);
             }
+            
+            /*
+             * Split the selected path
+             */
             
             if (Input.GetKeyDown(KeyCode.Z))
             {

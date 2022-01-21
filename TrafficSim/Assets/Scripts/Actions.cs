@@ -8,6 +8,8 @@ namespace DefaultNamespace
         public static Action OnUpdatePath;
 
         public static Action<bool> OnEditMode;
+
+        public static Action<Vector2> OnAddBaicRoad;
     }
     
 }
